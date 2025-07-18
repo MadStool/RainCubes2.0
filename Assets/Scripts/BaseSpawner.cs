@@ -1,43 +1,60 @@
 using UnityEngine;
 using System.Collections;
 
-public abstract class BaseSpawner<TSpawnable> : MonoBehaviour where TSpawnable : MonoBehaviour
+public abstract class BaseSpawner<T> : MonoBehaviour where T : MonoBehaviour
 {
+    public event System.Action OnCountChanged;
+
+    [Header("Spawn Settings")]
     [SerializeField] protected Vector3 _spawnArea = new Vector3(10f, 0f, 10f);
     [SerializeField, Range(0.1f, 10f)] protected float _spawnRate = 1f;
     [SerializeField, Range(5f, 20f)] protected float _spawnHeight = 10f;
-    [SerializeField, Range(1, 100)] private int _maxActiveObjects = 30;
+    [SerializeField, Range(1, 100)] protected int _maxActiveObjects = 30;
 
-    protected ObjectPool<TSpawnable> _pool;
+    protected ObjectPool<T> _pool;
     protected Coroutine _spawnRoutine;
     protected bool _isActive;
 
     public int TotalSpawned { get; protected set; }
-
-    protected ObjectPool<TSpawnable> Pool => _pool;
-    public int ActiveCount => _pool != null ? _pool.ActiveCount : 0;
-    public int TotalCreated => _pool != null ? _pool.TotalCreated : 0;
+    public int ActiveCount => _pool?.ActiveCount ?? 0;
+    public int TotalCreated => _pool?.TotalCreated ?? 0;
 
     protected virtual void Start()
     {
-        ValidateReferences();
+        _pool = GetComponentInChildren<ObjectPool<T>>();
+
+        if (_pool != null)
+        {
+            _pool.OnPoolUpdated += HandlePoolUpdate;
+            UpdateCounts();
+        }
+
         BeginSpawning();
     }
 
-    protected virtual void OnValidate()
+    private void HandlePoolUpdate()
     {
-        ValidateReferences();
+        UpdateCounts();
     }
 
-    protected virtual void ValidateReferences()
+    private void UpdateCounts()
     {
-        if (_pool == null)
-            _pool = GetComponentInChildren<ObjectPool<TSpawnable>>(true);
+        OnCountChanged?.Invoke();
+    }
+
+    protected virtual void OnDestroy()
+    {
+        if (_pool != null)
+        {
+            _pool.OnPoolUpdated -= HandlePoolUpdate;
+        }
+
+        StopSpawning();
     }
 
     public void BeginSpawning()
     {
-        if (_isActive) 
+        if (_isActive || _spawnRoutine != null)
             return;
 
         _isActive = true;
@@ -46,31 +63,24 @@ public abstract class BaseSpawner<TSpawnable> : MonoBehaviour where TSpawnable :
 
     public void StopSpawning()
     {
-        if (_isActive == false) 
-            return;
-
         _isActive = false;
-
-        if (_spawnRoutine != null)
-        {
-            StopCoroutine(_spawnRoutine);
-            _spawnRoutine = null;
-        }
     }
 
     protected virtual IEnumerator SpawnRoutine()
     {
-        var waitTime = new WaitForSeconds(1f / _spawnRate);
+        WaitForSeconds wait = new WaitForSeconds(1f / _spawnRate);
 
-        while (_isActive)
+        while (_isActive && (_pool == null || _pool.ActiveCount < _maxActiveObjects))
         {
-            if (_pool.ActiveCount < _maxActiveObjects)
+            if (_pool != null && _pool.ActiveCount < _maxActiveObjects)
             {
                 Spawn();
             }
 
-            yield return waitTime;
+            yield return wait;
         }
+
+        _spawnRoutine = null;
     }
 
     protected abstract void Spawn();
@@ -84,17 +94,5 @@ public abstract class BaseSpawner<TSpawnable> : MonoBehaviour where TSpawnable :
         );
     }
 
-    protected virtual void OnDestroy()
-    {
-        StopSpawning();
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawWireCube(
-            new Vector3(0, _spawnHeight, 0),
-            new Vector3(_spawnArea.x, 0.1f, _spawnArea.z)
-        );
-    }
+    protected void NotifyCountChanged() => OnCountChanged?.Invoke();
 }

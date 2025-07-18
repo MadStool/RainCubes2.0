@@ -6,21 +6,12 @@ public class BombSpawner : BaseSpawner<BombInteraction>
 
     public void SpawnBomb(Vector3 position)
     {
-        if (_pool == null)
-        {
-            Debug.LogError("BombPool reference is missing!");
+        if (_pool == null) 
             return;
-        }
 
         BombInteraction bomb = _pool.Get();
-
-        if (bomb == null)
-        {
-            Debug.LogError("Failed to get bomb from pool");
-            return;
-        }
-
         bomb.Initialize(position, _pool);
         TotalSpawned++;
+        NotifyCountChanged();
     }
 }

@@ -1,39 +1,25 @@
-using UnityEngine;
 using System;
+using UnityEngine;
+using System.Collections;
 
-[RequireComponent(typeof(CubeInteraction))]
 public class CubeLifetime : MonoBehaviour
 {
-    public event Action<CubeLifetime> LifetimeEnded;
-
     [SerializeField] private float _lifetimeAfterCollision = 2f;
-
-    private float _currentLifetime;
-    private bool _isCounting;
+    public event Action<CubeLifetime> LifetimeEnded;
 
     public void StartLifetimeCountdown()
     {
-        _currentLifetime = _lifetimeAfterCollision;
-        _isCounting = true;
+        StartCoroutine(LifetimeCoroutine());
     }
 
-    private void Update()
+    private IEnumerator LifetimeCoroutine()
     {
-        if (_isCounting == false) 
-            return;
-
-        _currentLifetime -= Time.deltaTime;
-
-        if (_currentLifetime <= 0f)
-        {
-            _isCounting = false;
-            LifetimeEnded?.Invoke(this);
-        }
+        yield return new WaitForSeconds(_lifetimeAfterCollision);
+        LifetimeEnded?.Invoke(this);
     }
 
-    public void ResetLifetime()
+    public void CancelCountdown()
     {
-        _isCounting = false;
-        _currentLifetime = 0f;
+        StopAllCoroutines();
     }
 }

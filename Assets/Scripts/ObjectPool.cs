@@ -1,70 +1,73 @@
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections.Generic;
+using System;
 
-public class ObjectPool<TComponent> : MonoBehaviour where TComponent : MonoBehaviour
+public class ObjectPool<T> : MonoBehaviour where T : MonoBehaviour
 {
-    [SerializeField] private TComponent _prefab;
-    [SerializeField] private int _initialPoolSize = 20;
-    [SerializeField] private int _maxActiveObjects = 20;
+    [SerializeField] private T _prefab;
+    [SerializeField] private int _initialSize = 20;
 
-    private Queue<TComponent> _inactiveObjects = new Queue<TComponent>();
-    private List<TComponent> _activeObjects = new List<TComponent>();
+    public event Action OnPoolUpdated;
 
+    private Queue<T> _inactive = new Queue<T>();
+    private List<T> _active = new List<T>();
+
+    public int ActiveCount => _active.Count;
     public int TotalCreated { get; private set; }
-    public int ActiveCount => _activeObjects.Count;
 
-    private void Start() => WarmPool();
-
-    private void WarmPool()
+    private void Start()
     {
-        for (int i = 0; i < _initialPoolSize; i++)
-            CreateNewObject();
+        InitializePool();
     }
 
-    private TComponent CreateNewObject()
+    private void InitializePool()
     {
-        var pooledObject = Instantiate(_prefab);
+        for (int i = 0; i < _initialSize; i++)
+        {
+            CreateNewObject();
+        }
 
+        NotifyPoolUpdated();
+    }
+
+    private T CreateNewObject()
+    {
+        var pooledObject = Instantiate(_prefab, transform);
         pooledObject.gameObject.SetActive(false);
-        _inactiveObjects.Enqueue(pooledObject);
+        _inactive.Enqueue(pooledObject);
         TotalCreated++;
 
         return pooledObject;
     }
 
-    public TComponent Get()
+    public T Get()
     {
-        if (_inactiveObjects.Count == 0 && _activeObjects.Count < _maxActiveObjects)
+        if (_inactive.Count == 0)
         {
             CreateNewObject();
         }
-        else if (_inactiveObjects.Count == 0)
-        {
-            return null;
-        }
 
-        var pooledObject = _inactiveObjects.Dequeue();
-
-        _activeObjects.Add(pooledObject);
+        var pooledObject = _inactive.Dequeue();
+        _active.Add(pooledObject);
         pooledObject.gameObject.SetActive(true);
+        NotifyPoolUpdated();
 
         return pooledObject;
     }
 
-    public void Return(TComponent pooledObject)
+    public void Return(T pooledObject)
     {
-        if (pooledObject == null) 
+        if (_active.Contains(pooledObject) == false) 
             return;
 
-        if (_activeObjects.Contains(pooledObject))
-        {
-            _activeObjects.Remove(pooledObject);
-            _inactiveObjects.Enqueue(pooledObject);
-            pooledObject.gameObject.SetActive(false);
-        }
-        else
-        {
-            Debug.LogWarning("Trying to return object not from active list");
-        }
+        _active.Remove(pooledObject);
+        _inactive.Enqueue(pooledObject);
+        pooledObject.gameObject.SetActive(false);
+        NotifyPoolUpdated();
+    }
+
+    private void NotifyPoolUpdated()
+    {
+        OnPoolUpdated?.Invoke();
     }
 }

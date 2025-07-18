@@ -1,6 +1,5 @@
 using UnityEngine;
 
-[RequireComponent(typeof(CubePhysics))]
 [RequireComponent(typeof(CubeVisuals))]
 [RequireComponent(typeof(CubeLifetime))]
 public class CubeInteraction : MonoBehaviour
@@ -9,7 +8,6 @@ public class CubeInteraction : MonoBehaviour
     [SerializeField] private Color _collisionColor = Color.red;
 
     private BombSpawner _bombSpawner;
-    private CubePhysics _physics;
     private CubeVisuals _visuals;
     private CubeLifetime _lifetime;
     private bool _hasCollided;
@@ -17,7 +15,6 @@ public class CubeInteraction : MonoBehaviour
 
     private void Awake()
     {
-        _physics = GetComponent<CubePhysics>();
         _visuals = GetComponent<CubeVisuals>();
         _lifetime = GetComponent<CubeLifetime>();
 
@@ -35,7 +32,6 @@ public class CubeInteraction : MonoBehaviour
         _pool = pool ?? throw new System.ArgumentNullException(nameof(pool));
         _visuals.SetColor(color);
         transform.SetPositionAndRotation(position, Quaternion.identity);
-        _physics.ResetPhysics();
         _hasCollided = false;
     }
 

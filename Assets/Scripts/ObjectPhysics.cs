@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-public class BombPhysics : MonoBehaviour
+public class ObjectPhysics : MonoBehaviour
 {
     private Rigidbody _rigidbody;
 

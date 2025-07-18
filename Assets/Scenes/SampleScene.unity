@@ -1030,8 +1030,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _prefab: {fileID: 155089950827199406, guid: ea53343233c370246a173be07d4a4bfb, type: 3}
-  _initialPoolSize: 20
-  _maxActiveObjects: 20
+  _initialSize: 20
 --- !u!1 &828292608
 GameObject:
   m_ObjectHideFlags: 0
@@ -1290,8 +1289,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _prefab: {fileID: 9111536819031899422, guid: 3dcf8c8712240d34194f25b2f25393d2, type: 3}
-  _initialPoolSize: 20
-  _maxActiveObjects: 20
+  _initialSize: 20
 --- !u!1 &1307609740
 GameObject:
   m_ObjectHideFlags: 0
@@ -2003,7 +2001,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1995236288}
-  - component: {fileID: 1995236287}
+  - component: {fileID: 1995236290}
+  - component: {fileID: 1995236289}
   m_Layer: 0
   m_Name: StatsUI
   m_TagString: Untagged
@@ -2011,23 +2010,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1995236287
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1995236286}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4a94692e0f51f948b87003d16ec3a1e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _cubeSpawner: {fileID: 1868530535}
-  _bombSpawner: {fileID: 2012435252}
-  _cubeStatsText: {fileID: 1307609743}
-  _bombStatsText: {fileID: 494508778}
-  _updateInterval: 0.3
 --- !u!4 &1995236288
 Transform:
   m_ObjectHideFlags: 0
@@ -2043,6 +2025,34 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1995236289
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1995236286}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: baef39050862d7d49b9a26de95e2e7a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _spawner: {fileID: 1868530535}
+  _statsText: {fileID: 1307609743}
+--- !u!114 &1995236290
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1995236286}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb8247a570a8b2d4abec54b2c0d97035, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _spawner: {fileID: 2012435252}
+  _statsText: {fileID: 494508778}
 --- !u!1 &2012435251
 GameObject:
   m_ObjectHideFlags: 0

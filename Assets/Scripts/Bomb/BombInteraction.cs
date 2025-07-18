@@ -33,11 +33,12 @@ public class BombInteraction : MonoBehaviour
 
     public void Explode()
     {
-        if (_hasExploded) return;
+        if (_hasExploded)
+            return;
+
         _hasExploded = true;
 
         Collider[] colliders = new Collider[20];
-
         int count = Physics.OverlapSphereNonAlloc(
             transform.position,
             _explosionRadius,
@@ -46,9 +47,11 @@ public class BombInteraction : MonoBehaviour
 
         for (int i = 0; i < count; i++)
         {
-            if (colliders[i].attachedRigidbody is Rigidbody rb && rb != _rigidbody)
+            var rigidbody = colliders[i].attachedRigidbody;
+
+            if (rigidbody != null && rigidbody != _rigidbody)
             {
-                rb.AddExplosionForce(_explosionForce, transform.position, _explosionRadius);
+                rigidbody.AddExplosionForce(_explosionForce, transform.position, _explosionRadius);
             }
         }
 
